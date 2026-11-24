@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>دەنگ بۆ دەق — کوردی</title>
+<style>
+:root{--bg:#fbf9f4;--card:#fff;--ink:#241d10;--mut:#7a705c;--line:#e8e1d0;--ac:#e9bb3c;--ac2:#b9851a;--ok:#2e8b57;--bad:#c0392b;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#17140d;--card:#221e14;--ink:#f3ecd9;--mut:#a89d83;--line:#3a3322;--ac2:#f0c75a;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Naskh Arabic","Noto Sans Arabic",Tahoma,system-ui,sans-serif;line-height:1.7;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+main{max-width:640px;margin:0 auto;padding:16px 14px 40px}
+h1{font-size:1.6rem;text-align:center;margin:8px 0 2px}
+.sub{text-align:center;color:var(--mut);margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button,textarea{font:inherit;color:inherit}
+.mic{display:block;margin:8px auto;width:110px;height:110px;border-radius:50%;border:0;background:var(--ac);color:#241d10;font-size:2.6rem;cursor:pointer;box-shadow:0 8px 24px #e9bb3c55}
+.mic.on{background:var(--bad);color:#fff}
+.st{text-align:center;font-weight:700;min-height:1.7em}
+.bars{display:flex;gap:4px;justify-content:center;height:30px;align-items:center;margin:4px 0}
+.bars i{width:5px;height:8px;background:var(--line);border-radius:3px;transition:height .1s}
+.bars.on i{background:var(--ac2)}
+textarea{width:100%;min-height:220px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;resize:vertical;font-size:1.15rem;line-height:1.9}
+.b{flex:1;min-width:120px;padding:11px 10px;border-radius:12px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-weight:600}
+.b.p{background:var(--ac);border-color:var(--ac);color:#241d10}
+.b:disabled{opacity:.5}
+.meta{display:flex;justify-content:space-between;color:var(--mut);font-size:.85rem;margin-top:6px}
+.sv{color:var(--ok)}
+input{width:100%;margin-bottom:8px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:inherit;font:inherit}
+.msg{font-size:.9rem;color:var(--mut);margin-top:8px;min-height:1.4em}
+.it{border-top:1px solid var(--line);padding:10px 0;display:flex;gap:8px;align-items:center}
+.it div{flex:1;min-width:0;cursor:pointer}
+.it small{color:var(--mut);display:block}
+.it span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.x{background:none;border:0;color:var(--bad);font-size:1.2rem;cursor:pointer}
+</style>
+</head>
+<body>
+<main>
+<h1>ڤۆیس بنێرە، بیکە بە دەقی کوردی</h1>
+<p class="sub">قسە بکە، دەقەکە خۆکارانە خەزن دەکرێت و دەتوانی بە AI راستی بکەیتەوە</p>
+
+<div class="card">
+  <button class="mic" id="mic" aria-label="مایک">🎙</button>
+  <div class="bars" id="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="st" id="st">ئامادەیە بۆ تۆمارکردن</div>
+</div>
+
+<div class="card">
+  <div class="row" style="justify-content:space-between"><b>دەق</b><span class="sv" id="sv">خەزنکرا ✓</span></div>
+  <textarea id="tx" placeholder="دەقەکەت لێرە دەردەکەوێت... دەتوانیش دەستکاری بکەیت"></textarea>
+  <div class="meta"><span id="wc">٠ وشە</span><span id="cc">٠ پیت</span></div>
+  <div class="row" style="margin-top:10px">
+    <button class="b p" id="fix">✨ راستکردنەوەی هەڵە بە AI</button>
+    <button class="b" id="undo" disabled>↩ گەڕانەوە</button>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <button class="b" id="word">📄 داگرتن بۆ وۆرد</button>
+    <button class="b" id="cw">📋 کۆپی بۆ وۆرد</button>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <button class="b" id="share">↗ ناردن</button>
+    <button class="b" id="save">💾 خەزنکردن لە لیست</button>
+    <button class="b" id="clr">🗑 پاککردنەوە</button>
+  </div>
+  <div class="msg" id="msg"></div>
+</div>
+
+<div class="card">
+  <b>⚙ ڕێکخستن</b>
+  <p class="msg" style="margin:4px 0 8px">کلیلەکان تەنها لەسەر ئەم مۆبایلە دەخەزنرێن و بۆ هیچ شوێنێکی تر نانێردرێن جگە لە ElevenLabs و Anthropic.</p>
+  <input id="kEl" type="password" placeholder="ElevenLabs API key" dir="ltr" autocomplete="off">
+  <input id="kAn" type="password" placeholder="Anthropic (Claude) API key" dir="ltr" autocomplete="off">
+  <input id="kLang" placeholder="کۆدی زمان (دڵخواز، وەک ckb)" dir="ltr" autocomplete="off">
+  <button class="b p" id="kSave" style="width:100%">خەزنکردنی کلیلەکان</button>
+</div>
+
+<div class="card"><b>تۆمارکراوەکان</b><div id="list"></div></div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const tx=$('tx'),mic=$('mic'),st=$('st'),msg=$('msg'),barsEl=$('bars');
+const store={g(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},s(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const KD='٠١٢٣٤٥٦٧٨٩',kn=n=>String(n).replace(/\d/g,d=>KD[d]);
+const say=t=>msg.textContent=t;
+let saveT;
+function counts(){const t=tx.value.trim();$('wc').textContent=kn(t?t.split(/\s+/).length:0)+' وشە';$('cc').textContent=kn(tx.value.length)+' پیت'}
+function autosave(){$('sv').textContent='خەزنکردن...';clearTimeout(saveT);saveT=setTimeout(()=>{store.s('kv_text',tx.value);$('sv').textContent='خەزنکرا ✓'},400);counts()}
+tx.addEventListener('input',autosave);
+tx.value=store.g('kv_text','');counts();
+function append(t){t=t.trim();if(!t)return;const v=tx.value;tx.value=v&&!/\s$/.test(v)?v+' '+t:v+t;tx.scrollTop=tx.scrollHeight;autosave()}
+
+/* ---- API (direct from browser; keys live only in this device's localStorage) ---- */
+const keys=()=>store.g('kv_keys',{el:'',an:'',lang:''});
+async function transcribeBlob(blob){
+  const k=keys();if(!k.el)throw new Error('کلیلی ElevenLabs دانەنراوە (⚙ ڕێکخستن)');
+  const t=(blob.type||'audio/webm').split(';')[0];
+  const fd=new FormData();fd.append('file',blob,'chunk.'+(t.includes('mp4')?'m4a':'webm'));
+  fd.append('model_id','scribe_v1');fd.append('tag_audio_events','false');if(k.lang)fd.append('language_code',k.lang);
+  const r=await fetch('https://api.elevenlabs.io/v1/speech-to-text',{method:'POST',headers:{'xi-api-key':k.el},body:fd});
+  const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(JSON.stringify(j).slice(0,200));
+  return (j.text||'').trim();
+}
+async function correctText(text){
+  const k=keys();if(!k.an)throw new Error('کلیلی Claude دانەنراوە (⚙ ڕێکخستن)');
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':k.an,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-5-5',max_tokens:4000,
+    system:'تۆ ڕاستکەرەوەی ئیملا و ڕێزمانی کوردی سۆرانییت. دەقەکە لە دەنگەوە گۆڕدراوە و هەڵەی تێدایە. پیتەکان (ی ە ێ ۆ ڕ ڵ ک گ پ چ ژ ڤ)، وشە بڕاو یان لکاوەکان و خاڵبەندی ڕاست بکەرەوە. واتا مەگۆڕە و هیچ شتێک زیاد مەکە. تەنها دەقی ڕاستکراوە بنێرەوە، بێ ڕوونکردنەوە.',
+    messages:[{role:'user',content:text.slice(0,20000)}]})});
+  const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(JSON.stringify(j).slice(0,200));
+  return (j.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+}
+
+/* ---- Recording: cut on silence, send each piece in order ---- */
+const bars=[...barsEl.querySelectorAll('i')];
+let stream,mr,ac,an,buf,tmr,segStart=0,lastVoice=0,hadVoice=false,wantOn=false,queue=Promise.resolve(),pending=0;
+function setSt(){st.textContent=wantOn?(pending?'گوێم لێتە... (دەنووسرێت)':'گوێم لێتە... قسە بکە'):(pending?'دەنووسرێت...':'ئامادەیە بۆ تۆمارکردن')}
+function ui(on){mic.classList.toggle('on',on);barsEl.classList.toggle('on',on);mic.textContent=on?'⏹':'🎙';setSt();if(!on)bars.forEach(b=>b.style.height='8px')}
+function level(r){bars.forEach((b,i)=>b.style.height=(8+Math.min(22,r*260*(0.5+Math.random()*0.8)))+'px')}
+function send(blob){
+  pending++;setSt();
+  queue=queue.then(()=>transcribeBlob(blob))
+    .then(t=>{if(t)append(t)})
+    .catch(e=>say('هەڵە: '+e.message))
+    .finally(()=>{pending--;setSt()});
+}
+function cycle(){
+  if(!wantOn)return;
+  const mime=['audio/webm;codecs=opus','audio/webm','audio/mp4'].find(m=>window.MediaRecorder&&MediaRecorder.isTypeSupported(m))||'';
+  const parts=[];const rec=new MediaRecorder(stream,mime?{mimeType:mime}:{});mr=rec;
+  rec.ondataavailable=e=>{if(e.data.size)parts.push(e.data)};
+  const voiced={v:false};rec._voiced=voiced;
+  rec.onstop=()=>{
+    if(voiced.v&&parts.length)send(new Blob(parts,{type:rec.mimeType||mime||'audio/webm'}));
+    if(wantOn)cycle();else release();
+  };
+  hadVoice=false;segStart=Date.now();lastVoice=segStart;rec.start();
+}
+function monitor(){
+  ac=new (window.AudioContext||window.webkitAudioContext)();
+  const src=ac.createMediaStreamSource(stream);an=ac.createAnalyser();an.fftSize=1024;src.connect(an);buf=new Uint8Array(an.fftSize);
+  tmr=setInterval(()=>{
+    an.getByteTimeDomainData(buf);let s=0;for(const v of buf){const d=(v-128)/128;s+=d*d}
+    const rms=Math.sqrt(s/buf.length);level(rms);const now=Date.now();
+    if(rms>0.025){hadVoice=true;lastVoice=now;if(mr&&mr._voiced)mr._voiced.v=true}
+    if(mr&&mr.state==='recording'){
+      const len=now-segStart;
+      if((hadVoice&&now-lastVoice>800&&len>1500)||len>25000||(!hadVoice&&len>6000))mr.stop();
+    }
+  },100);
+}
+function release(){clearInterval(tmr);try{ac&&ac.close()}catch(e){}stream&&stream.getTracks().forEach(t=>t.stop());stream=null;ui(false)}
+async function startAll(){
+  if(!navigator.mediaDevices||!window.MediaRecorder){say('ئەم وێبگەڕە تۆمارکردنی دەنگ پشتگیری ناکات.');return}
+  try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}
+  catch(e){say('ڕێگەی مایک نەدراوە. لە ڕێکخستنی وێبگەڕ مایک چالاک بکە.');return}
+  say('');wantOn=true;ui(true);monitor();cycle();
+}
+function stopAll(){wantOn=false;if(mr&&mr.state==='recording')mr.stop();else release()}
+mic.onclick=()=>wantOn?stopAll():startAll();
+
+/* ---- AI fix ---- */
+let undoStack=[];
+$('fix').onclick=async()=>{
+  const t=tx.value.trim();if(!t){say('سەرەتا دەقێک بنووسە یان تۆمار بکە.');return}
+  const b=$('fix');b.disabled=true;b.textContent='⏳ دەخوێنرێتەوە...';say('');
+  try{
+    const out=await correctText(t);
+    undoStack.push(t);$('undo').disabled=false;tx.value=out||t;autosave();say('ڕاستکرایەوە ✓');
+  }catch(e){say('ڕاستکردنەوە سەرکەوتوو نەبوو: '+e.message)}
+  b.disabled=false;b.textContent='✨ راستکردنەوەی هەڵە بە AI';
+};
+$('undo').onclick=()=>{if(undoStack.length){tx.value=undoStack.pop();autosave()}if(!undoStack.length)$('undo').disabled=true};
+
+/* ---- Word ---- */
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function docHtml(){const body=tx.value.split(/\n+/).filter(Boolean).map(p=>'<p dir="rtl" style="direction:rtl;text-align:right;font-family:Arial;font-size:14pt;line-height:1.8">'+esc(p)+'</p>').join('');
+return '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>دەق</title></head><body dir="rtl">'+body+'</body></html>'}
+function fname(){const d=new Date();return 'text-'+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'.doc'}
+$('word').onclick=()=>{if(!tx.value.trim()){say('دەقێک نییە.');return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+docHtml()],{type:'application/msword'}));a.download=fname();document.body.appendChild(a);a.click();a.remove();say('فایلی وۆرد ئامادەیە ✓')};
+$('cw').onclick=async()=>{const t=tx.value;if(!t.trim()){say('دەقێک نییە.');return}
+  try{if(window.ClipboardItem)await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([docHtml()],{type:'text/html'}),'text/plain':new Blob([t],{type:'text/plain'})})]);else await navigator.clipboard.writeText(t);say('کۆپی کرا ✓ ئێستا لە وۆرد Paste بکە.')}
+  catch(e){tx.select();try{document.execCommand('copy');say('کۆپی کرا ✓')}catch(_){say('کۆپی سەرکەوتوو نەبوو.')}}};
+$('share').onclick=async()=>{const t=tx.value.trim();if(!t){say('دەقێک نییە.');return}
+  try{if(navigator.share)await navigator.share({text:t});else{await navigator.clipboard.writeText(t);say('کۆپی کرا ✓')}}catch(e){}};
+$('clr').onclick=()=>{if(tx.value&&confirm('دەقەکە دەسڕدرێتەوە؟')){undoStack.push(tx.value);$('undo').disabled=false;tx.value='';autosave()}};
+
+/* ---- Saved list ---- */
+let notes=store.g('kv_notes',[]);
+function renderList(){const L=$('list');L.textContent='';
+  if(!notes.length){const d=document.createElement('div');d.className='msg';d.textContent='هیچ تۆمارێک نییە';L.appendChild(d);return}
+  notes.forEach((n,i)=>{const r=document.createElement('div');r.className='it';
+    const c=document.createElement('div');const s=document.createElement('span');s.textContent=n.t.slice(0,80);const m=document.createElement('small');m.textContent=new Date(n.d).toLocaleString();c.append(s,m);
+    c.onclick=()=>{tx.value=n.t;autosave();scrollTo({top:0,behavior:'smooth'})};
+    const x=document.createElement('button');x.className='x';x.textContent='✕';x.onclick=()=>{notes.splice(i,1);store.s('kv_notes',notes);renderList()};
+    r.append(c,x);L.appendChild(r)})}
+$('save').onclick=()=>{const t=tx.value.trim();if(!t){say('دەقێک نییە.');return}notes.unshift({t,d:Date.now()});notes=notes.slice(0,50);store.s('kv_notes',notes);renderList();say('لە لیست خەزنکرا ✓')};
+renderList();
+{const k=keys();$('kEl').value=k.el||'';$('kAn').value=k.an||'';$('kLang').value=k.lang||''}
+$('kSave').onclick=()=>{store.s('kv_keys',{el:$('kEl').value.trim(),an:$('kAn').value.trim(),lang:$('kLang').value.trim()});say('کلیلەکان خەزنکران ✓')};
+</script>
+</body>
+</html>
